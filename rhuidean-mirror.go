@@ -12,7 +12,7 @@ import (
 // some constants
 const tcpClientPort = "50998"
 const tcpServerPort = "50999"
-const host = "manetheren"
+const host = "localhost"
 
 // interval to update
 const updateInterval = 10 * 60 * 1000
