@@ -94,7 +94,7 @@ const Update = {
         for( var i=0; i< message['list'].length; i++ ){
             HTML += "<tr><td>"
             
-            var d = new Date( message['list'][i]['dt_txt'] )
+            var d = new Date( parseInt(message['list'][i]['dt'])*1000 )
             HTML += Utility.days[d.getDay()]+":"
 
             HTML += "</td><td>"
