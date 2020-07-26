@@ -11,6 +11,6 @@ func main() {
 	w.SetTitle("Minimal webview example")
 	w.SetSize(800, 600, webview.HintNone)
 
-	w.Navigate("http:/localhost/mirror/index.html")
+	w.Navigate("http://localhost/mirror/index.html")
 	w.Run()
 }
