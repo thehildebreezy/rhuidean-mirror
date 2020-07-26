@@ -161,11 +161,7 @@ func main() {
 	})
 
 	w.Bind("pollMessage", func() string {
-		fmt.Println("received poll")
-		msg := popMessage()
-		fmt.Println("Polled message")
-		fmt.Println(msg)
-		return msg
+		return popMessage()
 	})
 
 	startServer(w)
