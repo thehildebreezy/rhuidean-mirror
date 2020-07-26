@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
-	"sync"
 
 	"github.com/webview/webview"
 )
 
 // some constants
-const tcpClientPort = 50998
-const tcpServerPort = 50999
-const host = "stoneoftear"
+const tcpClientPort = "50998"
+const tcpServerPort = "50999"
+const host = "manetheren"
 
 // interval to update
 const updateInterval = 10 * 60 * 1000
@@ -40,26 +39,38 @@ const (
 	requestOther    byte = 0x0f
 )
 
-func requestUpdate() {
-	requestTime()
-	requestWeather()
-	requestForecast()
+// hold our message queue
+var messageQueue []string
+
+func popMessage() string {
+	if len(messageQueue) == 0 {
+		return ""
+	}
+	var x string
+	x, messageQueue = messageQueue[0], messageQueue[1:]
+	return x
 }
 
-func requestTime() {
+func requestUpdate() {
+	sendRequestTime()
+	sendRequestWeather()
+	sendRequestForecast()
+}
+
+func sendRequestTime() {
 	sendMessage(requestTime, "?v=1")
 }
 
-func requestWeather() {
+func sendRequestWeather() {
 	sendMessage(requestWeather, "?v=1")
 }
 
-func requestForecast() {
+func sendRequestForecast() {
 	sendMessage(requestForecast, "?v=0&other=simple")
 }
 
 func sendMessage(messageType byte, message string) {
-	c, err := net.Dial("tcp", host+":"+tcpServerPort)
+	c, err := net.Dial("tcp" /*host+*/, "192.168.1.27:"+tcpServerPort)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -70,6 +81,7 @@ func sendMessage(messageType byte, message string) {
 		fmt.Println(err)
 		return
 	}
+	fmt.Printf("%d Bytes written to tcp\n", n)
 }
 
 func formatMessage(messageType byte, message string) []byte {
@@ -93,14 +105,17 @@ func formatMessage(messageType byte, message string) []byte {
 	return buf
 }
 
-func startServer(wg WaitGroup, w WebView) {
-	defer wg.Done()
+func startServer(w webview.WebView) {
 
-	l, err := net.Listen("tcp", host+":"+tcpClientPort)
+	l, err := net.Listen("tcp", ":"+tcpClientPort)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	go awaitConnections(l, w)
+}
+
+func awaitConnections(l net.Listener, w webview.WebView) {
 	defer l.Close()
 
 	// accept new connections
@@ -112,10 +127,9 @@ func startServer(wg WaitGroup, w WebView) {
 		}
 		go acceptConnection(c, w)
 	}
-
 }
 
-func acceptConnection(c Conn, w WebView) {
+func acceptConnection(c net.Conn, w webview.WebView) {
 	defer c.Close()
 
 	data, err := ioutil.ReadAll(c)
@@ -127,8 +141,9 @@ func acceptConnection(c Conn, w WebView) {
 	fmt.Println("From TCP:")
 	fmt.Println(string(data))
 
-	evalString := "updateDisplay('" + string(data) + "');"
-	w.Eval(evalString)
+	//evalString := "updateDisplay('" + string(data) + "');"
+	//w.Eval(evalString)
+	messageQueue = append(messageQueue, string(data))
 }
 
 func main() {
@@ -138,19 +153,21 @@ func main() {
 	w.SetTitle("Minimal webview example")
 	w.SetSize(800, 600, webview.HintNone)
 
-	w.Navigate("http://localhost/mirror/index.html")
-	w.Run()
-
 	// create some bindings
+	fmt.Println("Binding service update")
 	w.Bind("serviceUpdate", func() {
+		fmt.Println("received serviceUpdate")
 		requestUpdate()
 	})
 
-	// now spawn a new go routine to
-	wg := sync.WaitGroup
+	w.Bind("pollMessage", func() string {
+		fmt.Println("received poll")
+		return popMessage()
+	})
 
-	// add new routine to wg
-	wg.Add(1)
-	go startServer(wg, w)
-	wg.Wait()
+	startServer(w)
+
+	w.Navigate("http://" + host + "/mirror/index.html")
+	w.Run()
+
 }
