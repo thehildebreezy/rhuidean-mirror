@@ -58,7 +58,7 @@ func requestUpdate() {
 }
 
 func sendRequestTime() {
-	sendMessage(requestTime, "?v=1")
+	sendMessage(requestTime, "?v=1&adjust=timezone")
 }
 
 func sendRequestWeather() {
@@ -70,7 +70,7 @@ func sendRequestForecast() {
 }
 
 func sendMessage(messageType byte, message string) {
-	c, err := net.Dial("tcp" /*host+*/, "192.168.1.27:"+tcpServerPort)
+	c, err := net.Dial("tcp", ":"+tcpServerPort)
 	if err != nil {
 		fmt.Println(err)
 		return

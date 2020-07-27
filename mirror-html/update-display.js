@@ -7,9 +7,6 @@
 const Update = {
     display : ( arg ) => {
         console.log('updating display')
-
-        console.log(arg)
-
         jsonObj = JSON.parse( arg )
         if( jsonObj == null ){
             console.log('Bad JSON object')
@@ -174,7 +171,6 @@ var Store = {
 
 const Utility = {
     ktof : ( Kelvin ) => {
-        console.log(Kelvin)
         var K = parseInt(Kelvin)
         if( K == null ) {
             console.log("bad temperature input")
