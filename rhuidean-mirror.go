@@ -151,7 +151,7 @@ func main() {
 	w := webview.New(debug)
 	defer w.Destroy()
 	w.SetTitle("Minimal webview example")
-	w.SetSize(984, 1824, webview.HintNone)
+	w.SetSize(720, 1280, webview.HintNone)
 
 	// create some bindings
 	fmt.Println("Binding service update")
