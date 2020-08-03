@@ -23,7 +23,7 @@ const Update = {
         var type = jsonObj['type'];
         if( type == null ){
             console.log('Bad message input')
-        } else if( type == "other" ){
+        } else if( type == "other" || type == "" ){
             Update.other( jsonObj['message'] )
         } else if( type == "time" ){
             Update.time( jsonObj['message'] )
@@ -161,6 +161,32 @@ const Update = {
         HTML += "</div>"
 
         el.innerHTML = HTML
+    },
+
+    other : (message) => {
+
+        if( message.constructor.name != 'Object' || 
+            !message.command
+        ){
+            return
+        }
+        
+        if( message.command === 'dim' ){
+            var dimmer = document.getElementById('dimmer')
+            if( ! dimmer ) {
+                return
+            }
+            console.log('dimming')
+            dimmer.style.display = "block"
+        } else if( message.command === 'wake' ){
+            
+            var dimmer = document.getElementById('dimmer')
+            if( ! dimmer ) {
+                return
+            }
+            console.log('waking')
+            dimmer.style.display = "none"
+        }
     }
 }
 

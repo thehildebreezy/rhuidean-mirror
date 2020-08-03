@@ -11,6 +11,8 @@
             function checkMessages(){
                 pollMessage().then(function(res){
                     if(res!=""){
+                        console.log(new Date())
+                        console.log(res)
                         Update.display(res)
                     }
                 })
@@ -48,6 +50,6 @@
         </div>
         <div class="lower left"></div>
         <div class="lower right"></div>
-
+        <div class="dimmer" id="dimmer"></div>
     </body>
 </html>
